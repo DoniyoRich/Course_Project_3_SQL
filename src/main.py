@@ -1,77 +1,58 @@
-# import os
-# from dotenv import load_dotenv
 import logging
 
 import psycopg2
-from psycopg2 import sql
 
-import config
+from src.config import config
 
 import requests
-from constants import employers
-
-DB_CONFIG = {
-    'dbname': 'postgres',
-    'host': 'localhost',
-    'port': '5432',
-    'user': 'postgres',
-    'password': '12345678'
-}
-
-# from src.DBManagerClass import DBManager
-#
-# load_dotenv()
+from src.constants import employers
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 
-def create_table(conn):
-    cursor = conn.cursor()
-
-    create_table_query = """
-        CREATE TABLE IF NOT EXISTS vacancies (
-            id SERIAL PRIMARY KEY,
-            city VARCHAR(50),
-            company VARCHAR(200),
-            industry VARCHAR(200),
-            title VARCHAR(200),
-            keywords TEXT,
-            skills TEXT,
-            experience VARCHAR(50),
-            salary VARCHAR(50),
-            url VARCHAR(200)
-        )
-    """
-    cursor.execute(create_table_query)
-
-    conn.commit()
-    cursor.close()
-    logging.info("Таблица 'vacancies' успешно создана.")
-
-
-def create_database(db_name: str = 'database'):
-    global conn, cur
+def create_database(params: dict, db_name: str = 'database') -> None:
+    """ Создание базы данных Работодателей. """
+    conn = psycopg2.connect(**params)
+    conn.autocommit = True
+    cur = conn.cursor()
     try:
-        conn = psycopg2.connect(**DB_CONFIG)
-        conn.autocommit = True  # autocommit для выполнения CREATE DATABASE
-        cur = conn.cursor()
-
-        cur.execute('CREATE DATABASE {}'.format(db_name))
+        cur.execute(f'DROP DATABASE IF EXISTS {db_name}')
+        cur.execute(f'CREATE DATABASE {db_name}')
         logging.info(f"База данных '{db_name}' успешно создана.")
 
     except psycopg2.Error as e:
         logging.error(f"Ошибка при создании базы данных: {e}")
 
-    finally:
-        if conn:
-            cur.close()
-            conn.close()
+    cur.close()
+    conn.close()
 
 
-def main():
-    # api_key_hh = os.getenv('API_KEY_HH')
-    # print(api_key_hh)
-    create_database('top_employers')
+def create_tables(params: dict, database_name='my_database') -> None:
+    conn = psycopg2.connect(**params, dbname=database_name)
+
+    with conn.cursor() as cur:
+        create_companies_table = """
+            CREATE TABLE companies (
+                company_id SERIAL PRIMARY KEY,
+                title VARCHAR(255) NOT NULL
+            )
+        """
+        cur.execute(create_companies_table)
+
+        create_vacancies_table = """
+            CREATE TABLE IF NOT EXISTS vacancies (
+                vacancy_id SERIAL PRIMARY KEY,
+                company_id INT REFERENCES companies(company_id),
+                title VARCHAR(200),
+                salary VARCHAR(50),
+                url VARCHAR(200)
+            )
+        """
+        cur.execute(create_vacancies_table)
+
+    conn.commit()
+    conn.close()
+    logging.info("Таблицы 'companies' и 'vacancies' успешно созданы.")
 
 
 def get_companies_and_vacancies_count(employer_id):
@@ -87,6 +68,13 @@ def get_all_vacancies(employer_id, vacancy_amount):
         vacancy = requests.get(url_vacancies).json()
         # print(vacancy[])
         input()
+
+
+def main():
+    params = config()
+    db_name = 'top_employers'
+    create_database(params, db_name)
+    create_tables(params, db_name)
 
 
 if __name__ == '__main__':
