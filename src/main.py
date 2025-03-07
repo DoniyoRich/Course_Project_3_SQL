@@ -34,7 +34,8 @@ class EmployerVacancy:
             self.params['page'] += 1
             print("\rЗагружаю вакансии с сайта hh.ru. Завершено:", str(self.params['page'] * 100 // 20) + "%",
                   end="")
-            time.sleep(0.5)
+            time.sleep(0.3)
+        print()
 
 
 def create_database(params: dict, db_name: str = 'database') -> None:
@@ -72,7 +73,7 @@ def create_tables(params: dict, database_name='my_database') -> None:
         create_companies_table = """
             CREATE TABLE companies (
                 company_id SERIAL PRIMARY KEY,
-                title VARCHAR(255) NOT NULL
+                company_title VARCHAR(255) NOT NULL
             )
         """
         cur.execute(create_companies_table)
@@ -81,7 +82,7 @@ def create_tables(params: dict, database_name='my_database') -> None:
             CREATE TABLE IF NOT EXISTS vacancies (
                 vacancy_id SERIAL PRIMARY KEY,
                 company_id INT REFERENCES companies(company_id),
-                title VARCHAR(200),
+                vacancy_name VARCHAR(200),
                 salary VARCHAR(50),
                 url VARCHAR(200)
             )
@@ -93,27 +94,12 @@ def create_tables(params: dict, database_name='my_database') -> None:
     logging.info("Таблицы 'companies' и 'vacancies' успешно созданы.")
 
 
-def get_companies_and_vacancies_count(employer_id):
-    url_get_num_vac = f'https://api.hh.ru/employers/{employer_id}'
-    number_of_vacs = requests.get(url_get_num_vac).json()['open_vacancies']
-
-    return number_of_vacs
+def get_companies_and_vacancies_count():
+    pass
 
 
 def get_all_vacancies(employer_id: str):
-    url_vacancies = f'https://api.hh.ru/vacancies?employer_id={employer_id}'
-    vacancies = requests.get(url_vacancies).json()['items']
-    vacancies_short = []
-    for vac in vacancies:
-        vacancies_short.append(
-            {'Должность': vac['name'], 'Зарплата': vac.get('salary'), 'Сссылка на вакансию': vac.get('alternate_url')})
-    print(vacancies_short)
-    # print(vacancies)
-    # vacancy_list = []
-    # for vac in vacancies:
-    #     vacancy_list.append()
-    #     print(vacancy[])
-    # input()
+    pass
 
 
 def save_to_database(params: dict, vacancies: list[dict], database_name: str) -> None:
@@ -121,43 +107,42 @@ def save_to_database(params: dict, vacancies: list[dict], database_name: str) ->
 
     with conn.cursor() as cur:
         for employer in vacancies:
-            employer_name = vacancies[0]
+            employer_name = list(employer.keys())[0]  # сохраняем имя Работодателя
+            # print(employer_name)
             cur.execute(
-                """
-                INSERT INTO channels (title, views, subscribers, videos, channel_url)
-                VALUES (%s, %s, %s, %s, %s)
-                RETURNING channel_id
-                """,
-                (channel_data['title'], channel_stats['viewCount'], channel_stats['subscriberCount'],
-                 channel_stats['videoCount'], f"https://www.youtube.com/channel/{channel['channel']['id']}")
-            )
-            channel_id = cur.fetchone()[0]
-            videos_data = channel['videos']
-            for video in videos_data:
-                video_data = video['snippet']
+                "INSERT INTO  companies (company_title) VALUES ('%s') RETURNING company_id" % str(employer_name))
+            logging.info(f'Данные по работодателю {employer_name} внесены в БД.')
+            company_id = cur.fetchone()[0]
+            # print(company_id)
+            for vacancy in employer[employer_name]:  # итерируемся по списку вакансий конкретного Работодателя
+                name = vacancy.get('name')
+                salary = max(validate_salary(vacancy, 'from'), validate_salary(vacancy, 'to'))
+                url = vacancy.get('alternate_url')
+
                 cur.execute(
                     """
-                    INSERT INTO videos (channel_id, title, publish_date, video_url)
+                    INSERT INTO vacancies (company_id, vacancy_name, salary, url)
                     VALUES (%s, %s, %s, %s)
                     """,
-                    (channel_id, video_data['title'], video_data['publishedAt'],
-                     f"https://www.youtube.com/watch?v={video['id']['videoId']}")
+                    (company_id, name, salary, url)
                 )
+            conn.commit()
+            logging.info(f'Данные по вакансиям работодателям {employer_name} внесены в БД.')
+
+    conn.close()
+
+
+def validate_salary(vacancy: dict, param_to_check: str) -> int:
+    """ Класс-метод проверяет на валидность значения полей Зарплаты. """
+    try:
+        salary = int(vacancy['salary'][param_to_check])
+    except Exception:
+        salary = 0
+    return salary
 
 
 def main() -> None:
     """ Основная функция программы. """
-
-    # создаем словарь с названием компаний и количеством их открытых вакансий
-    # number_of_vacs = {name: get_companies_and_vacancies_count(id_) for name, id_ in employers.items()}
-    # get_companies_and_vacancies_count(employer_id)
-    # employers_vacancies = {}
-    # for name, id_ in employers.items():
-    #     employers_vacancies[name] = get_companies_and_vacancies_count(id_)
-    # print(employers_vacancies)
-    # get_all_vacancies(id_)
-    # for employers_vacancy in
-    # number_of_vacs.append(get_companies_and_vacancies_count(employer_id))
 
     intro()
     employers_vacancies = []
@@ -166,11 +151,12 @@ def main() -> None:
         print(f'\nЗагружаю вакансии для: {name}')
         emp.load_vacancies()
         employers_vacancies.append({name: emp.vacancies})
+        del emp
 
     params = config()
     db_name = 'top_employers'
-    # create_database(params, db_name)
-    # create_tables(params, db_name)
+    create_database(params, db_name)
+    create_tables(params, db_name)
     save_to_database(params, employers_vacancies, db_name)
 
 
