@@ -10,7 +10,7 @@ from src.config import config
 from src.constants import EMPLOYERS, DB_NAME, USER_MENU_LIST
 from src.utils import intro, user_menu
 
-# logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+# Настраиваем логирование на вывод логов в файл
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s [%(levelname)s] %(message)s',
@@ -19,7 +19,7 @@ logging.basicConfig(
 
 
 def main() -> None:
-    """ Основная функция программы. """
+    """ Основная функция программы. Взаимодействие с Пользователем. """
 
     intro()
 
@@ -73,10 +73,9 @@ def main() -> None:
                     case 6:
                         # сохраняем в excel файл
                         excel_saver = ExcelSaver()
-                        # saving_file(user.vacancies, 'Excel', excel_saver)
-                    case 7:
-                        pass
+                        excel_saver.save_to_file(db.result)
 
 
+# Точка входа в приложение
 if __name__ == '__main__':
     main()

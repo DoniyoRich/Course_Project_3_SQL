@@ -14,7 +14,7 @@ class EmployerVacancy:
         self.employer_id = employer_id
 
     def load_vacancies(self) -> None:
-        """ Метод получения вакансий с сайта. """
+        """ Метод получения вакансий с сайта hh.ru. """
         while self.params.get('page') != 20:
             response = requests.get(self.url, headers=self.headers, params=self.params)
             if response.status_code == 200:
@@ -23,7 +23,7 @@ class EmployerVacancy:
             else:
                 print("  Что-то пошло не так с запросом, ошибка:", response.status_code)
             self.params['page'] += 1
-            print("\rЗагружаю вакансии с сайта hh.ru. Завершено:", str(self.params['page'] * 100 // 20) + "%",
+            print("\rЗавершено:", str(self.params['page'] * 100 // 20) + "%",
                   end="")
             time.sleep(0.5)
         print()

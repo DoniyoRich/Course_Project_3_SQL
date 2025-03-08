@@ -1,4 +1,5 @@
 import pandas as pd
+import openpyxl
 
 from src.FileSaverABS import FileSaver
 
@@ -6,7 +7,7 @@ from src.FileSaverABS import FileSaver
 class ExcelSaver(FileSaver):
     """ Класс работы с файлами Excel. Реализован метод сохранения списка вакансий в файл. """
 
-    def save_to_file(self, vacancies: list[dict], filename: str = 'vacancies') -> None:
+    def save_to_file(self, vacancies: list[tuple], filename: str = 'vacancies') -> None:
         """
         Метод преобразует полученный список вакансий в датафрейм pandas
         и сохраняет в файл формата EXCEL.

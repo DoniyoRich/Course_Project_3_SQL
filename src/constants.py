@@ -3,10 +3,9 @@ from pathlib import Path
 
 BASE_DIR = str(Path(__file__).parent.parent)
 DATA_DIR = BASE_DIR + '\\data\\'
-TEST_DATA_SETS = BASE_DIR + '\\tests\\' + '\\test_datasets\\'
 
-FILE_NAME_API = 'VACANCIES_API'
-PATH_TO_VACANCIES_FILE = os.path.join(DATA_DIR, FILE_NAME_API)
+# FILE_NAME_API = 'VACANCIES_API'
+# PATH_TO_VACANCIES_FILE = os.path.join(DATA_DIR, FILE_NAME_API)
 
 DB_NAME = 'top_employers'
 
@@ -37,7 +36,6 @@ USER_MENU_LIST = [
     '4. Список вакансий, уровень зарплаты по которым выше среднего уровня по всем вакансиям.',
     '5. Список вакансий по ключевому слову в наименовании вакансии.',
     '6. Сохранить выборку в Excel.',
-    '7. Вывести вакансии в консоль.',
     '0. На сегодня хватит ;)'
 ]
 
