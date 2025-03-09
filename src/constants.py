@@ -1,11 +1,8 @@
-import os
 from pathlib import Path
 
 BASE_DIR = str(Path(__file__).parent.parent)
 DATA_DIR = BASE_DIR + '\\data\\'
-
-# FILE_NAME_API = 'VACANCIES_API'
-# PATH_TO_VACANCIES_FILE = os.path.join(DATA_DIR, FILE_NAME_API)
+LOGS_DIR = BASE_DIR + '\\logs\\'
 
 DB_NAME = 'top_employers'
 
@@ -38,5 +35,3 @@ USER_MENU_LIST = [
     '6. Сохранить выборку в Excel.',
     '0. На сегодня хватит ;)'
 ]
-
-YES_NO_CHOICE = ['1. Да', '0. Нет']

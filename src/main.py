@@ -2,19 +2,18 @@ import logging
 
 import psycopg2
 
+from src.config import config
+from src.constants import DB_NAME, EMPLOYERS, LOGS_DIR, USER_MENU_LIST
 from src.DBManagerClass import DBManager
 from src.EmployerVacancyClass import EmployerVacancy
 from src.ExcelSaver import ExcelSaver
-from src.config import config
-
-from src.constants import EMPLOYERS, DB_NAME, USER_MENU_LIST
 from src.utils import intro, user_menu
 
 # Настраиваем логирование на вывод логов в файл
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s [%(levelname)s] %(message)s',
-    handlers=[logging.FileHandler('../logs/logs.log', 'w', encoding='UTF-8')]
+    handlers=[logging.FileHandler(LOGS_DIR + 'logs.log', 'w', encoding='UTF-8')]
 )
 
 
@@ -59,6 +58,7 @@ def main() -> None:
                 match user_choice:
                     case 0:
                         print("\nХорошего дня! ;)")
+                        logging.info('Завершение работы программы.')
                         break
                     case 1:
                         db.get_companies_and_vacancies_count()
@@ -72,8 +72,14 @@ def main() -> None:
                         db.get_vacancies_with_keyword()
                     case 6:
                         # сохраняем в excel файл
-                        excel_saver = ExcelSaver()
-                        excel_saver.save_to_file(db.result)
+                        while True:
+                            try:
+                                filename = input('Введите имя файла: ')
+                                excel_saver = ExcelSaver()
+                                excel_saver.save_to_file(db.result, db.columns, filename)
+                                break
+                            except Exception:
+                                continue
 
 
 # Точка входа в приложение
