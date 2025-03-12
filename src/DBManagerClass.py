@@ -19,9 +19,16 @@ class DBManager:
         self.conn = conn
         self.cur = cur
         self.query: str = ''
-        self.salary: str = ''
         self.result: list[tuple] = []  # будем сохранять выборку данных, если потребуется ее сохранить в excel файл
         self.columns: list[str] = []  # будем названия столбцов, если потребуется выборку в excel файл
+        self.data = {
+            'company': 0,
+            'vacancy': 0,
+            'vacancy_count': 0,
+            'salary': 0,
+            'avg_salary': 0,
+            'url': 0,
+        }
 
     def create_database(self, params: dict, db_name: str) -> None:
         """ Метод создает базу данных Работодателей. """
@@ -100,6 +107,10 @@ class DBManager:
         """
         self.columns = ['Компания', 'Кол-во вакансий']
         self.execute_query('Выполнен запрос на получение списка всех компаний и их вакансий из базы данных.')
+
+        self.data['company'] = 0
+        self.data['vacancy_count'] = 1
+
         self.format_output('Компания: {company} | кол-во вакансий: {vacancy_count}')
         # print()
         # for row in self.result:
@@ -120,6 +131,12 @@ class DBManager:
         """
         self.columns = ['Компания', 'Вакансия', 'Зарплата', 'URL']
         self.execute_query('Выполнен запрос на получение всех вакансий, зарплаты и ссылки на вакансию.')
+
+        self.data['company'] = 0
+        self.data['vacancy'] = 1
+        self.data['salary'] = 2
+        self.data['url'] = 3
+
         self.format_output('Компания: {company} | вакансия: {vacancy} | зарплата: {salary} | ссылка: {url}')
         # print()
         # for row in self.result:
@@ -140,12 +157,16 @@ class DBManager:
         """
         self.columns = ['Компания', 'Средняя зарплата']
         self.execute_query('Выполнен запрос на получение средней зарплаты по компании.')
-        self.format_output('Компания: {company} | средняя зарплата: {avg_salary} | ссылка: {url}')
+
+        self.data['company'] = 0
+        self.data['avg_salary'] = 1
+
+        self.format_output('Компания: {company} | средняя зарплата: {avg_salary}')
         # print()
         # for row in self.result:
-            # форматируем вывод, обрезаем до нужного количества символов, выравниваем влево и добавляем недостающие пробелы
-            # print(
-            #     f'Компания: {row[0][:15].ljust(15)} | средняя зарплата: {row[1]}')
+        # форматируем вывод, обрезаем до нужного количества символов, выравниваем влево и добавляем недостающие пробелы
+        # print(
+        #     f'Компания: {row[0][:15].ljust(15)} | средняя зарплата: {row[1]}')
         # print('Нажмите Enter для продолжения...')
         # input()
 
@@ -163,12 +184,19 @@ class DBManager:
         self.columns = ['Компания', 'Вакансия', 'Зарплата', 'URL']
         self.execute_query(
             'Выполнен запрос на получение списка всех вакансий, у которых зарплата выше средней по всем вакансиям.')
-        print()
+
+        self.data['company'] = 0
+        self.data['vacancy'] = 1
+        self.data['salary'] = 2
+        self.data['url'] = 3
+
         self.format_output('Компания: {company} | вакансия: {vacancy} | зарплата: {salary} | ссылка: {url}')
+
+        # print()
         # for row in self.result:
-            # форматируем вывод, обрезаем до нужного количества символов, выравниваем влево и добавляем недостающие пробелы
-            # print(
-            #     f'Компания: {row[0][:15].ljust(15)} | вакансия: {row[1][:50].ljust(50)} | зарплата: {str(row[2]).ljust(10)} | ссылка: {row[3]}')
+        # форматируем вывод, обрезаем до нужного количества символов, выравниваем влево и добавляем недостающие пробелы
+        # print(
+        #     f'Компания: {row[0][:15].ljust(15)} | вакансия: {row[1][:50].ljust(50)} | зарплата: {str(row[2]).ljust(10)} | ссылка: {row[3]}')
         # print('Нажмите Enter для продолжения...')
         # input()
 
@@ -184,13 +212,19 @@ class DBManager:
         self.columns = ['Компания', 'Вакансия', 'Зарплата', 'URL']
         self.execute_query(
             f'Выполнен запрос на получение списка всех вакансий, в названии которых встречается слово "{search_word}".')
+
+        self.data['company'] = 0
+        self.data['vacancy'] = 1
+        self.data['salary'] = 2
+        self.data['url'] = 3
+
         self.format_output('Компания: {company} | вакансия: {vacancy} | зарплата: {salary} | ссылка: {url}')
         # print()
         # for row in self.result:
         #     self.salary = str(row[2]).ljust(10) if row[2] else 'не указана'.ljust(10)
-            # форматируем вывод, обрезаем до нужного количества символов, выравниваем влево и добавляем недостающие пробелы
-            # print(
-            #     f'Компания: {row[0][:15].ljust(15)} | вакансия: {row[1][:50].ljust(50)} | зарплата: {self.salary} | ссылка: {row[3]}')
+        # форматируем вывод, обрезаем до нужного количества символов, выравниваем влево и добавляем недостающие пробелы
+        # print(
+        #     f'Компания: {row[0][:15].ljust(15)} | вакансия: {row[1][:50].ljust(50)} | зарплата: {self.salary} | ссылка: {row[3]}')
         # print('Нажмите Enter для продолжения...')
         # input()
 
@@ -205,17 +239,28 @@ class DBManager:
         print()
         for row in self.result:
             try:
-                self.salary = str(row[2]).ljust(10) if row[2] else 'не указана'.ljust(10)
+                salary = str(row[self.data['salary']]).ljust(10) if row[2] else 'не указана'.ljust(10)
             except Exception:
-                pass
+                salary = 'не указана'
+
+            # data_to_output = {
+            #     'company': row[self.data['company']][:15].ljust(15),
+            #     'vacancy_count': row[self.data['vacancy_count']],
+            #     'vacancy': row[self.data['vacancy']][:50].ljust(50),
+            #     'salary': salary,
+            #     'avg_salary': row[self.data['avg_salary']],
+            #     'url': row[self.data['url']]
+            # }
             data_to_output = {
-                'company': row[0][:15].ljust(15),
-                'vacancy_count': row[1],
-                'vacancy': row[1][:50].ljust(50),
-                'salary': self.salary,
-                'avg_salary': row[1],
-                'url': row[3]
+                'company': row[self.data['company']],
+                'vacancy_count': row[self.data['vacancy_count']],
+                'vacancy': row[self.data['vacancy']],
+                'salary': salary,
+                'avg_salary': row[self.data['avg_salary']],
+                'url': row[self.data['url']]
             }
-            print(output_string.format(**data_to_output))
+
+            # print(output_string.format(**data_to_output))
+            print(output_string)
         print('Нажмите Enter для продолжения...')
         input()

@@ -26,5 +26,5 @@ class EmployerVacancy:
             self.params['page'] += 1
             print("\rЗавершено:", str(self.params['page'] * 100 // 20) + "%",
                   end="")
-            time.sleep(0.5)
+            time.sleep(0.2)
         print()
