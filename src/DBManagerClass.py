@@ -99,15 +99,14 @@ class DBManager:
             GROUP BY company_title
         """
         self.columns = ['Компания', 'Кол-во вакансий']
-        self.cur.execute(self.query)
-        logging.info('Выполнен запрос на получение списка всех компаний и их вакансий из базы данных.')
-        self.result = self.cur.fetchall()
-        print()
-        for row in self.result:
-            # форматируем вывод, обрезаем до 20 символов, выравниваем влево и добавляем недостающие пробелы
-            print(f'Компания: {row[0][:15].ljust(15)} | кол-во вакансий: {row[1]}')
-        print('Нажмите Enter для продолжения...')
-        input()
+        self.execute_query('Выполнен запрос на получение списка всех компаний и их вакансий из базы данных.')
+        self.format_output('Компания: {company} | кол-во вакансий: {vacancy_count}')
+        # print()
+        # for row in self.result:
+        # форматируем вывод, обрезаем до 20 символов, выравниваем влево и добавляем недостающие пробелы
+        # print(f'Компания: {row[0][:15].ljust(15)} | кол-во вакансий: {row[1]}')
+        # print('Нажмите Enter для продолжения...')
+        # input()
 
     def get_all_vacancies(self) -> None:
         """
@@ -120,17 +119,16 @@ class DBManager:
             JOIN vacancies USING(company_id)
         """
         self.columns = ['Компания', 'Вакансия', 'Зарплата', 'URL']
-        self.cur.execute(self.query)
-        logging.info('Выполнен запрос на получение всех вакансий, зарплаты и ссылки на вакансию.')
-        self.result = self.cur.fetchall()
-        print()
-        for row in self.result:
-            self.salary = str(row[2]).ljust(10) if row[2] else 'не указана'.ljust(10)
-            # форматируем вывод, обрезаем до нужного количества символов, выравниваем влево и добавляем недостающие пробелы
-            print(
-                f'Компания: {row[0][:15].ljust(15)} | вакансия: {row[1][:50].ljust(50)} | зарплата: {self.salary} | ссылка: {row[3]}')
-        print('Нажмите Enter для продолжения...')
-        input()
+        self.execute_query('Выполнен запрос на получение всех вакансий, зарплаты и ссылки на вакансию.')
+        self.format_output('Компания: {company} | вакансия: {vacancy} | зарплата: {salary} | ссылка: {url}')
+        # print()
+        # for row in self.result:
+        #     self.salary = str(row[2]).ljust(10) if row[2] else 'не указана'.ljust(10)
+        # форматируем вывод, обрезаем до нужного количества символов, выравниваем влево и добавляем недостающие пробелы
+        # print(
+        #     f'Компания: {row[0][:15].ljust(15)} | вакансия: {row[1][:50].ljust(50)} | зарплата: {self.salary} | ссылка: {row[3]}')
+        # print('Нажмите Enter для продолжения...')
+        # input()
 
     def get_avg_salary(self) -> None:
         """ Метод получает среднюю зарплату по компаниям. """
@@ -141,16 +139,15 @@ class DBManager:
             GROUP BY company_title
         """
         self.columns = ['Компания', 'Средняя зарплата']
-        self.cur.execute(self.query)
-        logging.info('Выполнен запрос на получение средней зарплаты по компании.')
-        self.result = self.cur.fetchall()
-        print()
-        for row in self.result:
+        self.execute_query('Выполнен запрос на получение средней зарплаты по компании.')
+        self.format_output('Компания: {company} | средняя зарплата: {avg_salary} | ссылка: {url}')
+        # print()
+        # for row in self.result:
             # форматируем вывод, обрезаем до нужного количества символов, выравниваем влево и добавляем недостающие пробелы
-            print(
-                f'Компания: {row[0][:15].ljust(15)} | средняя зарплата: {row[1]}')
-        print('Нажмите Enter для продолжения...')
-        input()
+            # print(
+            #     f'Компания: {row[0][:15].ljust(15)} | средняя зарплата: {row[1]}')
+        # print('Нажмите Enter для продолжения...')
+        # input()
 
     def get_vacancies_with_higher_salary(self) -> None:
         """ Метод получает список всех вакансий, у которых зарплата выше средней по всем вакансиям. """
@@ -164,17 +161,16 @@ class DBManager:
                 WHERE salary <> 0)
         """
         self.columns = ['Компания', 'Вакансия', 'Зарплата', 'URL']
-        self.cur.execute(self.query)
-        logging.info(
+        self.execute_query(
             'Выполнен запрос на получение списка всех вакансий, у которых зарплата выше средней по всем вакансиям.')
-        self.result = self.cur.fetchall()
         print()
-        for row in self.result:
+        self.format_output('Компания: {company} | вакансия: {vacancy} | зарплата: {salary} | ссылка: {url}')
+        # for row in self.result:
             # форматируем вывод, обрезаем до нужного количества символов, выравниваем влево и добавляем недостающие пробелы
-            print(
-                f'Компания: {row[0][:15].ljust(15)} | вакансия: {row[1][:50].ljust(50)} | зарплата: {str(row[2]).ljust(10)} | ссылка: {row[3]}')
-        print('Нажмите Enter для продолжения...')
-        input()
+            # print(
+            #     f'Компания: {row[0][:15].ljust(15)} | вакансия: {row[1][:50].ljust(50)} | зарплата: {str(row[2]).ljust(10)} | ссылка: {row[3]}')
+        # print('Нажмите Enter для продолжения...')
+        # input()
 
     def get_vacancies_with_keyword(self) -> None:
         """ Метод получает список всех вакансий, в названии которых содержатся переданные в метод слова. """
@@ -186,28 +182,40 @@ class DBManager:
             WHERE vacancy_name LIKE '%{search_word}%'
         """
         self.columns = ['Компания', 'Вакансия', 'Зарплата', 'URL']
-        self.cur.execute(self.query)
-        logging.info(
+        self.execute_query(
             f'Выполнен запрос на получение списка всех вакансий, в названии которых встречается слово "{search_word}".')
-        self.result = self.cur.fetchall()
-        print()
-        for row in self.result:
-            self.salary = str(row[2]).ljust(10) if row[2] else 'не указана'.ljust(10)
+        self.format_output('Компания: {company} | вакансия: {vacancy} | зарплата: {salary} | ссылка: {url}')
+        # print()
+        # for row in self.result:
+        #     self.salary = str(row[2]).ljust(10) if row[2] else 'не указана'.ljust(10)
             # форматируем вывод, обрезаем до нужного количества символов, выравниваем влево и добавляем недостающие пробелы
-            print(
-                f'Компания: {row[0][:15].ljust(15)} | вакансия: {row[1][:50].ljust(50)} | зарплата: {self.salary} | ссылка: {row[3]}')
-        print('Нажмите Enter для продолжения...')
-        input()
+            # print(
+            #     f'Компания: {row[0][:15].ljust(15)} | вакансия: {row[1][:50].ljust(50)} | зарплата: {self.salary} | ссылка: {row[3]}')
+        # print('Нажмите Enter для продолжения...')
+        # input()
 
-    def execute_query(self, log_message: str, out_string: str) -> None:
+    def execute_query(self, log_message: str) -> None:
         """ Метод исполняет запрос на выборку и сохраняет получение данные в виде списка кортежей. """
         self.cur.execute(self.query)
         logging.info(log_message)
         self.result = self.cur.fetchall()
+
+    def format_output(self, output_string: str) -> None:
+        """ Метод форматирует вывод данных в консоль. """
         print()
-        # [print(out_string) for _ in self.result]
         for row in self.result:
-            # salary = str(row[2]).ljust(10) if row[2] else 'не указана'.ljust(10)
-            print(out_string)
+            try:
+                self.salary = str(row[2]).ljust(10) if row[2] else 'не указана'.ljust(10)
+            except Exception:
+                pass
+            data_to_output = {
+                'company': row[0][:15].ljust(15),
+                'vacancy_count': row[1],
+                'vacancy': row[1][:50].ljust(50),
+                'salary': self.salary,
+                'avg_salary': row[1],
+                'url': row[3]
+            }
+            print(output_string.format(**data_to_output))
         print('Нажмите Enter для продолжения...')
         input()

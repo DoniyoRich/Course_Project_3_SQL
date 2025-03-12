@@ -1,0 +1,5 @@
+[postgresql]
+host=localhost
+user=postgres (OR_YOUR_USERNAME)
+password=YOUR_PASSWORD
+port=5432 (OR_OTHER_PORT_IF_DIFFERENT)

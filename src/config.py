@@ -1,7 +1,9 @@
 from configparser import ConfigParser
 
+from src.constants import BASE_DIR
 
-def config(filename: str = "database.ini", section: str = "postgresql") -> dict:
+
+def config(filename: str = BASE_DIR + r"\database.ini", section: str = "postgresql") -> dict:
     """
     Функция создает словарь данных для подключения к базе данных,
     считывая их с конфигурационного файла.
