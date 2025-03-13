@@ -7,12 +7,8 @@ LOGS_DIR = BASE_DIR + '\\logs\\'
 DB_NAME = 'top_employers'
 
 # словарь компаний и их ID на сайте hh.ru
-EMPLOYERS = {
-    'Мегафон': '3127',
-    'Альфа-Банк': '80'
-}
 
-EMPLOYERS1 = {
+EMPLOYERS = {
     'Мегафон': '3127',
     'Сбер': '3529',
     'Альфа-Банк': '80',

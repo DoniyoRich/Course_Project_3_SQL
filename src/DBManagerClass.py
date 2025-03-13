@@ -21,6 +21,14 @@ class DBManager:
         self.query: str = ''
         self.result: list[tuple] = []  # будем сохранять выборку данных, если потребуется ее сохранить в excel файл
         self.columns: list[str] = []  # будем названия столбцов, если потребуется выборку в excel файл
+
+        """
+        Cловарь self.data необходим для того, чтобы сохранять индексы при обращении к результатам запросов,
+        которые хранятся в self.results в виде списка кортежей.
+        Этот словарь используется при форматировании вывода в консоль.
+        Так как элементов в кортеже может быть всегда разное в зависимости от запроса,
+        то индексы необходимо обнулять после запрос и перед выводом в консоль.
+        """
         self.data = {
             'company': 0,
             'vacancy': 0,
@@ -108,16 +116,11 @@ class DBManager:
         self.columns = ['Компания', 'Кол-во вакансий']
         self.execute_query('Выполнен запрос на получение списка всех компаний и их вакансий из базы данных.')
 
-        self.data['company'] = 0
-        self.data['vacancy_count'] = 1
+        # оставляем компанию (0), кол-во вакансий (1)
+        # остальное обнуляем для последующих запросов
+        self.update_data_indexes([0, 1, 0, 0, 0, 0])
 
         self.format_output('Компания: {company} | кол-во вакансий: {vacancy_count}')
-        # print()
-        # for row in self.result:
-        # форматируем вывод, обрезаем до 20 символов, выравниваем влево и добавляем недостающие пробелы
-        # print(f'Компания: {row[0][:15].ljust(15)} | кол-во вакансий: {row[1]}')
-        # print('Нажмите Enter для продолжения...')
-        # input()
 
     def get_all_vacancies(self) -> None:
         """
@@ -132,20 +135,11 @@ class DBManager:
         self.columns = ['Компания', 'Вакансия', 'Зарплата', 'URL']
         self.execute_query('Выполнен запрос на получение всех вакансий, зарплаты и ссылки на вакансию.')
 
-        self.data['company'] = 0
-        self.data['vacancy'] = 1
-        self.data['salary'] = 2
-        self.data['url'] = 3
+        # оставляем компанию (0), вакансию (1), зарплату (2) и url(3)
+        # остальное обнуляем для последующих запросов
+        self.update_data_indexes([0, 0, 1, 2, 0, 3])
 
         self.format_output('Компания: {company} | вакансия: {vacancy} | зарплата: {salary} | ссылка: {url}')
-        # print()
-        # for row in self.result:
-        #     self.salary = str(row[2]).ljust(10) if row[2] else 'не указана'.ljust(10)
-        # форматируем вывод, обрезаем до нужного количества символов, выравниваем влево и добавляем недостающие пробелы
-        # print(
-        #     f'Компания: {row[0][:15].ljust(15)} | вакансия: {row[1][:50].ljust(50)} | зарплата: {self.salary} | ссылка: {row[3]}')
-        # print('Нажмите Enter для продолжения...')
-        # input()
 
     def get_avg_salary(self) -> None:
         """ Метод получает среднюю зарплату по компаниям. """
@@ -158,17 +152,11 @@ class DBManager:
         self.columns = ['Компания', 'Средняя зарплата']
         self.execute_query('Выполнен запрос на получение средней зарплаты по компании.')
 
-        self.data['company'] = 0
-        self.data['avg_salary'] = 1
+        # оставляем компанию (0) и среднюю зарплату (1)
+        # остальное обнуляем для последующих запросов
+        self.update_data_indexes([0, 0, 0, 0, 1, 0])
 
         self.format_output('Компания: {company} | средняя зарплата: {avg_salary}')
-        # print()
-        # for row in self.result:
-        # форматируем вывод, обрезаем до нужного количества символов, выравниваем влево и добавляем недостающие пробелы
-        # print(
-        #     f'Компания: {row[0][:15].ljust(15)} | средняя зарплата: {row[1]}')
-        # print('Нажмите Enter для продолжения...')
-        # input()
 
     def get_vacancies_with_higher_salary(self) -> None:
         """ Метод получает список всех вакансий, у которых зарплата выше средней по всем вакансиям. """
@@ -185,20 +173,11 @@ class DBManager:
         self.execute_query(
             'Выполнен запрос на получение списка всех вакансий, у которых зарплата выше средней по всем вакансиям.')
 
-        self.data['company'] = 0
-        self.data['vacancy'] = 1
-        self.data['salary'] = 2
-        self.data['url'] = 3
+        # оставляем компанию (0), вакансию (1), зарплату (2) и url(3)
+        # остальное обнуляем для последующих запросов
+        self.update_data_indexes([0, 0, 1, 2, 0, 3])
 
         self.format_output('Компания: {company} | вакансия: {vacancy} | зарплата: {salary} | ссылка: {url}')
-
-        # print()
-        # for row in self.result:
-        # форматируем вывод, обрезаем до нужного количества символов, выравниваем влево и добавляем недостающие пробелы
-        # print(
-        #     f'Компания: {row[0][:15].ljust(15)} | вакансия: {row[1][:50].ljust(50)} | зарплата: {str(row[2]).ljust(10)} | ссылка: {row[3]}')
-        # print('Нажмите Enter для продолжения...')
-        # input()
 
     def get_vacancies_with_keyword(self) -> None:
         """ Метод получает список всех вакансий, в названии которых содержатся переданные в метод слова. """
@@ -213,20 +192,11 @@ class DBManager:
         self.execute_query(
             f'Выполнен запрос на получение списка всех вакансий, в названии которых встречается слово "{search_word}".')
 
-        self.data['company'] = 0
-        self.data['vacancy'] = 1
-        self.data['salary'] = 2
-        self.data['url'] = 3
+        # оставляем компанию (0), вакансию (1), зарплату (2) и url(3)
+        # остальное обнуляем для последующих запросов
+        self.update_data_indexes([0, 0, 1, 2, 0, 3])
 
         self.format_output('Компания: {company} | вакансия: {vacancy} | зарплата: {salary} | ссылка: {url}')
-        # print()
-        # for row in self.result:
-        #     self.salary = str(row[2]).ljust(10) if row[2] else 'не указана'.ljust(10)
-        # форматируем вывод, обрезаем до нужного количества символов, выравниваем влево и добавляем недостающие пробелы
-        # print(
-        #     f'Компания: {row[0][:15].ljust(15)} | вакансия: {row[1][:50].ljust(50)} | зарплата: {self.salary} | ссылка: {row[3]}')
-        # print('Нажмите Enter для продолжения...')
-        # input()
 
     def execute_query(self, log_message: str) -> None:
         """ Метод исполняет запрос на выборку и сохраняет получение данные в виде списка кортежей. """
@@ -239,28 +209,28 @@ class DBManager:
         print()
         for row in self.result:
             try:
-                salary = str(row[self.data['salary']]).ljust(10) if row[2] else 'не указана'.ljust(10)
+                salary = str(row[self.data['salary']]).ljust(10) if row[self.data['salary']] else 'не указана'.ljust(10)
             except Exception:
                 salary = 'не указана'
 
-            # data_to_output = {
-            #     'company': row[self.data['company']][:15].ljust(15),
-            #     'vacancy_count': row[self.data['vacancy_count']],
-            #     'vacancy': row[self.data['vacancy']][:50].ljust(50),
-            #     'salary': salary,
-            #     'avg_salary': row[self.data['avg_salary']],
-            #     'url': row[self.data['url']]
-            # }
             data_to_output = {
-                'company': row[self.data['company']],
+                'company': row[self.data['company']][:15].ljust(15),
                 'vacancy_count': row[self.data['vacancy_count']],
-                'vacancy': row[self.data['vacancy']],
+                'vacancy': row[self.data['vacancy']][:50].ljust(50),
                 'salary': salary,
-                'avg_salary': row[self.data['avg_salary']],
+                'avg_salary': str(row[self.data['avg_salary']]),
                 'url': row[self.data['url']]
             }
 
-            # print(output_string.format(**data_to_output))
-            print(output_string)
+            print(output_string.format(**data_to_output))
         print('Нажмите Enter для продолжения...')
         input()
+
+    def update_data_indexes(self, list_of_indexes: list[int]) -> None:
+        " Метод обновляет индексы в словаре для избежания ошибки адресации в запросах при выводе в консоль. "
+        self.data['company'] = list_of_indexes[0]
+        self.data['vacancy_count'] = list_of_indexes[1]
+        self.data['vacancy'] = list_of_indexes[2]
+        self.data['salary'] = list_of_indexes[3]
+        self.data['avg_salary'] = list_of_indexes[4]
+        self.data['url'] = list_of_indexes[5]
